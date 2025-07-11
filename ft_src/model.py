@@ -19,13 +19,11 @@ class Model:
             torch_dtype=torch.bfloat16,
             # attn_implementation="flash_attention_2"
         )
-        min_pixels = 224*224
-        max_pixels = 640*360
+        # min_pixels = 224*224
+        # max_pixels = 640*360
         self.processor = AutoProcessor.from_pretrained(
             self.model_id,
             use_fast=True,
-            min_pixels=min_pixels,
-            max_pixels=max_pixels,
         )
 
 if __name__ == "__main__":
