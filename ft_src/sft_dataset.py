@@ -2,7 +2,7 @@ from datasets import load_dataset
 from qwen_vl_utils import process_vision_info
 import torch
 
-system_message = "You are an expert in the pddl language generation"
+system_message = "You are a helpful assistant."
 old_prompt= """
 I want you to create HDDL problem file (similar to pddl file) of the image that I give as input.
 An example of an HDDL is this:
@@ -165,8 +165,11 @@ def generate_description(sample, model, processor):
         ]},
     ]
     # Preparation for inference
+    # text = processor.apply_chat_template(
+    #     messages, tokenize=False, add_generation_prompt=True
+    # )
     text = processor.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
+        messages, tokenize=False, add_generation_prompt=True, return_dict=True, return_tensors="pt"
     )
     image_inputs, video_inputs = process_vision_info(messages)
     inputs = processor(
