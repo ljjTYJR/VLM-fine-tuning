@@ -3,7 +3,7 @@ from qwen_vl_utils import process_vision_info
 import torch
 
 system_message = "You are an expert in the pddl language generation"
-prompt= """
+old_prompt= """
 I want you to create HDDL problem file (similar to pddl file) of the image that I give as input.
 An example of an HDDL is this:
 (define
@@ -38,6 +38,78 @@ Put food in containers and remove the other object from the tables.
 The task you can use are: move_object (to move the objects), move_to_container (to move objects to the container).
 To remove the object, use the task (move_object, remote_control, out_location).
 To move the objects, use (move_object plate wp1f).
+Only output the generated hddl languages.
+"""
+
+prompt= """
+I want you to create HDDL problem file (similar to pddl file) of the image that I give as input.
+An example of an HDDL is this:
+(define
+        (problem pfile01)
+        (:domain  domain_htn)
+        (:objects
+                plate1 - container
+                pear1 - food
+                home1 wp1s wp2s - location
+                wp1f - location
+                robot1 - robot
+        )       (:htn
+                :parameters ()
+                :subtasks (and
+                 (task0 (move_object plate1 wp1f))
+                 (task1 (move_to_container pear1 plate1))
+                )
+                :ordering (and
+                )
+        )
+
+        (:init
+                (at plate1 wp1s)
+                (at pear1 wp2s)
+                (at robot1 home1)
+        )
+)
+Another example:
+(define
+    (problem pfile01)
+    (:domain  domain_htn)
+    (:objects
+        tennis_ball1 - item
+        white_cup1 red_cup1 - container
+        banana1 pear1 - food
+        home1 wp1s wp2s wp3s wp4s wp5s out_location wp1f wp2f - location
+        robot1 - robot
+    )
+    (:htn
+        :parameters ()
+        :subtasks (and
+            (task0 (move_object tennis_ball1 out_location))
+            (task1 (move_object white_cup1 wp1f))
+            (task2 (move_object red_cup1 wp2f))
+            (task3 (move_to_container banana1 white_cup1))
+            (task4 (move_to_container pear1 red_cup1))
+        )
+        :ordering (and
+        )
+    )
+
+    (:init
+        (at tennis_ball1 wp1s)
+        (at white_cup1 wp2s)
+        (at red_cup1 wp3s)
+        (at banana1 wp4s)
+        (at pear1 wp5s)
+        (at robot1 home1)
+    )
+)
+First, identify objects in the image and their types, including food (for example, apple, banana, etc.), containers (for example, plate, bowl, cup, basket), and other objects (listed as items).
+For the location of the objects, use simply wp1s, wp2s (for the start) and wp1f, wp2f (for the goal).
+For each object, the starting location is wp1s, wp2s, wp3s ...; and the goal location is wp1f, wp2f, wp3f ...
+For the goal, only food and containers are allowed on the table.
+Put food in containers and remove the other object from the tables.
+The task you can use are: move_object (to move the objects) and move_to_container (to move objects to the container).
+To move the objects, use (move_object plate wp1f).
+To remove the object, use the task (move_object, remote_control, out_location).
 Only output the generated hddl languages.
 """
 
