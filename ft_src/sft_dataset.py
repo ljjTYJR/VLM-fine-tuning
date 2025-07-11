@@ -103,8 +103,7 @@ Another example:
     )
 )
 First, identify objects in the image and their types, including food (for example, apple, banana, etc.), containers (for example, plate, bowl, cup, basket), and other objects (listed as items).
-For the location of the objects, use simply wp1s, wp2s (for the start) and wp1f, wp2f (for the goal).
-For each object, the starting location is wp1s, wp2s, wp3s ...; and the goal location is wp1f, wp2f, wp3f ...
+For the location of the objects, use simply wp1s, wp2s etc, (for the start) and wp1f, wp2f etc, (for the goal).
 For the goal, only food and containers are allowed on the table.
 Put food in containers and remove the other object from the tables.
 The task you can use are: move_object (to move the objects) and move_to_container (to move objects to the container).
