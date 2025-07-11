@@ -1,4 +1,16 @@
+# Use PyTorch CUDA 11.8 wheels from the official PyTorch repo
+--index-url https://download.pytorch.org/whl/cu118
+
+torch
+torchvision
+torchaudio
+
+# Other dependencies
 peft==0.16.0
 transformers==4.49.0
 trl==0.17.0
 qwen-vl-utils
+omegaconf
+bitsandbytes
+tensorboard
+huggingface_hub
