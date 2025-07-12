@@ -17,7 +17,7 @@ class Model:
             # quantization_config=bnb_config,
             device_map="auto",
             torch_dtype=torch.bfloat16,
-            attn_implementation="flash_attention_2"
+            # attn_implementation="flash_attention_2"
         )
         min_pixels = 224*224
         max_pixels = 640*320
