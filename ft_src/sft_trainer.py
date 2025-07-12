@@ -20,8 +20,8 @@ class CustomSFTTrainer:
         # get model
         self.model = model.model
         self.processor = model.processor
-
         self.out_dir = cfg.trainer.output_dir
+        self.cfg = cfg
 
     def create_trainer(self, dataset):
         # LoRA config based on QLoRA paper & Sebastian Raschka experiment
@@ -57,7 +57,7 @@ class CustomSFTTrainer:
             dataset_kwargs = {"skip_prepare_dataset": True} # important for collator
         )
         sft_args.remove_unused_columns=False
-        sft_args.dataset_kwargs = {"skip_prepare_dataset": True}
+        sft_args.per_device_train_batch_size = self.cfg.trainer.per_device_train_batch_size
 
         collate_fn_wrap = partial(
             collate_fn,

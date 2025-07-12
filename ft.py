@@ -5,12 +5,12 @@ from omegaconf import DictConfig, OmegaConf
 from ft_src.sft_trainer import CustomSFTTrainer
 from ft_src.sft_dataset import format_data, collate_fn
 from ft_src.model import Model
-import torch
+import argparse
 
 def train_loop(cfg: DictConfig):
     # 1. load the model
-    vlm_model = Model(cfg.model.model_id)
-    print(f"Model {cfg.model.model_id} loaded successfully, The model dytype is {vlm_model.model.dtype}.")
+    vlm_model = Model(cfg['model'])
+    print("Model and tokenizer loaded successfully.")
 
     # 2. load the data
     dataset = load_dataset(cfg.dataset.dataset_id, split='train')
@@ -25,5 +25,16 @@ def train_loop(cfg: DictConfig):
     trainer.train()
 
 if __name__ == "__main__":
-    cfg = OmegaConf.load("cfg/qwen2_5-vl.yaml")
+    cfg = OmegaConf.load("cfg/qwen2_5-vl_train.yaml")
+
+    # trainer args
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--trainer.per_device_train_batch_size", type=int, default=4)
+    args = parser.parse_args()
+    cli_config = OmegaConf.from_dotlist([f"{k}={v}" for k, v in vars(args).items() if v is not None])
+    print(f"CLI config: {cli_config}")
+    # merge the CLI config with the main config
+    cfg = OmegaConf.merge(cfg, cli_config)
+
+    print(f"Final config: {OmegaConf.to_yaml(cfg)}")
     train_loop(cfg)
