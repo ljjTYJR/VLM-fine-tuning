@@ -11,4 +11,3 @@ dataset:
 trainer:
   output_dir: "output/qwen2.5-vl"
   per_device_train_batch_size: 2
-  num_train_epochs: 100

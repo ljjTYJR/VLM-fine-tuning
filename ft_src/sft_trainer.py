@@ -1,7 +1,7 @@
 from trl import SFTTrainer
 from transformers import TrainingArguments, PreTrainedTokenizerBase
 from peft import LoraConfig
-from ft_src.sft_dataset import collate_fn
+from ft_src.sft_dataset import collate_fn_ref_ids
 from trl import (
     ModelConfig,
     ScriptArguments,
@@ -61,7 +61,7 @@ class CustomSFTTrainer:
         sft_args.num_train_epochs = self.cfg.trainer.num_train_epochs
 
         collate_fn_wrap = partial(
-            collate_fn,
+            collate_fn_ref_ids,
             processor=self.processor,
         )
         self.trainer = SFTTrainer(

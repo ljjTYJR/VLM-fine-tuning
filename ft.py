@@ -1,11 +1,11 @@
 # the main loop in the fine-tuning process
-import os
 from datasets import load_dataset
 from omegaconf import DictConfig, OmegaConf
 from ft_src.sft_trainer import CustomSFTTrainer
-from ft_src.sft_dataset import format_data, collate_fn
+from ft_src.sft_dataset import format_data, collate_fn_ref_ids
 from ft_src.model import Model
 import argparse
+from ft_src.sft_dataset import collate_fn_ref_ids
 
 def train_loop(cfg: DictConfig):
     # 1. load the model
