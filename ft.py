@@ -24,16 +24,16 @@ def train_loop(cfg: DictConfig):
     trainer.train()
 
 if __name__ == "__main__":
-    cfg = OmegaConf.load("cfg/qwen2_5-vl_train.yaml")
-
     # trainer args
     parser = argparse.ArgumentParser()
-    parser.add_argument("--trainer.per_device_train_batch_size", type=int, default=4)
-    parser.add_argument("--trainer.num_train_epochs", type=int, default=3)
+    parser.add_argument("--config_file", type=str, default="cfg/qwen2_5-vl_train.yaml", help="Path to the config file")
+    parser.add_argument("--trainer.num_train_epochs", type=int, default=100, help="Number of training epochs")
     args = parser.parse_args()
     cli_config = OmegaConf.from_dotlist([f"{k}={v}" for k, v in vars(args).items() if v is not None])
     print(f"CLI config: {cli_config}")
     # merge the CLI config with the main config
+    cfg = OmegaConf.load(args.config_file)
+    print(f"Base config: {OmegaConf.to_yaml(cfg)}")
     cfg = OmegaConf.merge(cfg, cli_config)
 
     print(f"Final config: {OmegaConf.to_yaml(cfg)}")
