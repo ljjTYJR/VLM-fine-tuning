@@ -58,6 +58,7 @@ class CustomSFTTrainer:
         )
         sft_args.remove_unused_columns=False
         sft_args.per_device_train_batch_size = self.cfg.trainer.per_device_train_batch_size
+        sft_args.num_train_epochs = self.cfg.trainer.num_train_epochs
 
         collate_fn_wrap = partial(
             collate_fn,
