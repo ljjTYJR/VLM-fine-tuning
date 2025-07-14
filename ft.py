@@ -16,7 +16,6 @@ def train_loop(cfg: DictConfig):
     dataset = load_dataset(cfg.dataset.dataset_id, split='train')
     dataset = [format_data(sample) for sample in dataset]
     print(f"Dataset {cfg.dataset.dataset_id} loaded successfully with {len(dataset)} samples.")
-
     # 3. set the trainer
     trainer = CustomSFTTrainer(vlm_model, cfg)
     # begin the training

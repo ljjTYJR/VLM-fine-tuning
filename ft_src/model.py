@@ -4,7 +4,7 @@ from transformers import Qwen2_5_VLForConditionalGeneration, BitsAndBytesConfig,
 from omegaconf import OmegaConf
 
 bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True, bnb_4bit_use_double_quant=False, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.float16
+    load_in_4bit=True, bnb_4bit_use_double_quant=False, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.bfloat16
 )
 
 dtype_map = {
@@ -32,14 +32,9 @@ class Model:
         self.model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             **self.model_params
         )
-        min_pixels = 224*224
-        max_pixels = 640*320
         self.processor = AutoProcessor.from_pretrained(
             # todo: make it configurable
             self.model_params['pretrained_model_name_or_path'],
-            use_fast=True,
-            min_pixels=min_pixels,
-            max_pixels=max_pixels
         )
 
 if __name__ == "__main__":

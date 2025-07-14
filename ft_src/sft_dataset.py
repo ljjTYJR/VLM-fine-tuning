@@ -139,19 +139,26 @@ def format_data(sample):
                         },{
                             "type": "image",
                             "image": sample["image"],
+                            "resized_height": 320,
+                            "resized_width": 640,
                         }
                     ],
                 },
                 {
                     "role": "assistant",
-                    "content": [{"type": "text", "text": sample["hddl"]}],
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": sample["hddl"]
+                        }
+                    ],
                 },
             ],
         }
 
 def collate_fn(samples, processor):
      # Get the texts and images, and apply the chat template
-    texts = [processor.apply_chat_template(example["messages"], tokenize=False) for example in samples]
+    texts = [processor.apply_chat_template(example["messages"], tokenize=False, add_generation_prompt=True) for example in samples]
     image_inputs = [process_vision_info(example["messages"])[0] for example in samples]
 
     # Tokenize the texts and process the images
@@ -171,7 +178,7 @@ def generate_description(sample, model, processor):
     messages = [
         {"role": "system", "content": [{"type": "text", "text": system_message}]},
         {"role": "user", "content": [
-            {"type": "image","image": sample['image']},
+            {"type": "image","image": sample['image'], "resized_height": 320, "resized_width": 640,},
             {"type": "text", "text": prompt}
         ]},
     ]
