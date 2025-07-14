@@ -30,6 +30,7 @@ if __name__ == "__main__":
     # trainer args
     parser = argparse.ArgumentParser()
     parser.add_argument("--trainer.per_device_train_batch_size", type=int, default=4)
+    parser.add_argument("--trainer.num_train_epochs", type=int, default=3)
     args = parser.parse_args()
     cli_config = OmegaConf.from_dotlist([f"{k}={v}" for k, v in vars(args).items() if v is not None])
     print(f"CLI config: {cli_config}")

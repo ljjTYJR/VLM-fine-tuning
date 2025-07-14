@@ -38,8 +38,8 @@ class Model:
             # todo: make it configurable
             self.model_params['pretrained_model_name_or_path'],
             use_fast=True,
-            # min_pixels=min_pixels,
-            # max_pixels=max_pixels
+            min_pixels=min_pixels,
+            max_pixels=max_pixels
         )
 
 if __name__ == "__main__":
