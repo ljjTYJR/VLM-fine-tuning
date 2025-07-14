@@ -43,7 +43,8 @@ class CustomSFTTrainer:
             gradient_checkpointing=True,            # use gradient checkpointing to save memory
             optim="adamw_torch_fused",              # use fused adamw optimizer
             logging_steps=5,                         # log every 5 steps
-            save_strategy="epoch",                  # save checkpoint every epoch
+            save_strategy="steps",                  # save checkpoint via steps
+            save_steps=100,                         # save checkpoint every 100 steps
             learning_rate=2e-4,                     # learning rate, based on QLoRA paper
             bf16=True,                              # use bfloat16 precision
             tf32=True,                              # use tf32 precision
