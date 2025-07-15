@@ -140,21 +140,21 @@ Only output the generated hddl file.
 PROMPT_3= """
 I want you to create HDDL problem file of the image that I give as input.
 For the objects:
-Identify objects in the image and their types, there are classified as food (for example, apple, banana, etc.), containers (for example, plate, bowl, cup, basket), and items (except food and containers).
+Identify objects in the image and their types, there are classified as food (for example, apple, banana, etc.), containers (for example, plate, bowl, basket), glass (for example, cup, mug, etc.), and items (except food and containers).
 Generate start and goal waypoints for all objects, for example, wp1s, wp2s etc, (for the start) and wp1f, wp2f etc, (for the goal).
 For example, for 5 objects, we have 10 waypoints: wp1s, wp2s, wp3s, wp4s, wp5s (for the start) and wp1f, wp2f, wp3f, wp4f, wp5f (for the goal).
 Each waypoint is of type location.
 By default, there is robot1 recognized as robot.
 
 For tasks:
-Move items and containers to waypoints, and move food to containers.
+Move items, containers and glass to waypoints, and move food to containers.
 If they are not containers, move the food to waypoints.
-The task you can use are: `move_object` (which is used to move the items and containers) and `move_to_container` (to move food to the container).
-The usage example is: to move items and containers: (move_object object_to_move final_waypoint); to move the food: (move_to_container food container).
+The task you can use are: `move_object` (which is used to move the items, containers and glass) and `move_to_container` (to move food to the container).
+The usage example is: to move items, glass and containers: (move_object object_to_move final_waypoint); to move the food: (move_to_container food container).
 
 For initial states:
 Place each object at its initial waypoint, for example, (at plate1 wp1s) for the initial location of the plate1.
-If food / items are in a container, use (on food/item container) to indicate that the food is in the container.
+If food / items / glass are in a container, use (on food/item/glass container) to indicate that the food / item / glass is in the container.
 The robot1 is always at home1, use (at robot1 home1) to indicate that the robot is at home.
 
 Only output the generated hddl file.
