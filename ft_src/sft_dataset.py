@@ -9,12 +9,13 @@ from ft_src.constants import (
     PROMPT_0,
     PROMPT_1,
     PROMPT_2,
+    PROMPT_3
 )
 
 
 # Convert dataset to OAI messages
 def format_data(sample, prompt_index):
-    prompt = [PROMPT_0, PROMPT_1, PROMPT_2][prompt_index]
+    prompt = [PROMPT_0, PROMPT_1, PROMPT_2, PROMPT_3][prompt_index]
     return {"messages": [
                 {
                     "role": "user",
@@ -88,7 +89,7 @@ def collate_fn_ref_ids(samples, processor):
     return batch
 
 def generate_description(sample, model, processor, prompt_idx):
-    prompt = [PROMPT_0, PROMPT_1, PROMPT_2][prompt_idx]
+    prompt = [PROMPT_0, PROMPT_1, PROMPT_2, PROMPT_3][prompt_idx]
     messages = [
         {"role": "system", "content": [{"type": "text", "text": SYSTEM_MESSAGE}]},
         {"role": "user", "content": [

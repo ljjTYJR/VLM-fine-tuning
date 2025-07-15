@@ -126,6 +126,17 @@ To move the objects, use (move_object object_to_move final_waypoint); to move th
 Only output the generated hddl file.
 """
 
+PROMPT_2= """
+I want you to create HDDL problem file of the image that I give as input.
+First, identify objects in the image and their types, including food (for example, apple, banana, etc.), containers (for example, plate, bowl, cup, basket), and other objects (listed as items).
+For the location of the objects, use simply wp1s, wp2s etc, (for the start) and wp1f, wp2f etc, (for the goal); for example, (at plate1 wp1s) for the initial location of the plate1.
+For the goal, only food and containers are allowed on the table.
+Put food in containers and remove the other object from the tables, if they are not containers, place the food on waypoints.
+The task you can use are: move_object (to move the objects) and move_to_container (to move objects to the container).
+To move the objects, use (move_object object_to_move final_waypoint); to move the food, use (move_to_container food container).
+Only output the generated hddl file.
+"""
+
 PROMPT_3= """
 I want you to create HDDL problem file of the image that I give as input.
 For the objects:
@@ -146,16 +157,5 @@ Place each object at its initial waypoint, for example, (at plate1 wp1s) for the
 If food / items are in a container, use (on food/item container) to indicate that the food is in the container.
 The robot1 is always at home1, use (at robot1 home1) to indicate that the robot is at home.
 
-Only output the generated hddl file.
-"""
-
-PROMPT_2= """
-I want you to create HDDL problem file of the image that I give as input.
-First, identify objects in the image and their types, including food (for example, apple, banana, etc.), containers (for example, plate, bowl, cup, basket), and other objects (listed as items).
-For the location of the objects, use simply wp1s, wp2s etc, (for the start) and wp1f, wp2f etc, (for the goal); for example, (at plate1 wp1s) for the initial location of the plate1.
-For the goal, only food and containers are allowed on the table.
-Put food in containers and remove the other object from the tables, if they are not containers, place the food on waypoints.
-The task you can use are: move_object (to move the objects) and move_to_container (to move objects to the container).
-To move the objects, use (move_object object_to_move final_waypoint); to move the food, use (move_to_container food container).
 Only output the generated hddl file.
 """
