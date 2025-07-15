@@ -19,7 +19,7 @@ def create_csv(project_dir, img_dir, hddl_dir, output_path):
             f.write(f"{idx},{img_path},{hddl_path}\n")
 
 if __name__ == "__main__":
-    project_dir = "/media/shuo/T7/pddl_data"
+    project_dir = "/media/shuo/T7/hddl_data"
     img_dir = "images"
     hddl_dir = "hddl"
     metadata = "metadata.csv"

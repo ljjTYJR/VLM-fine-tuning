@@ -5,11 +5,10 @@ import pandas as pd
 df = pd.read_csv("/media/shuo/T7/hddl_data/metadata.csv")
 df = df[["image", "hddl"]]
 
-# Load the PDDL files as strings
+# Load the HDDL files as strings
 def load_hddl(path):
     with open(path, "r") as f:
         return f.read()
-
 df["hddl"] = df["hddl"].apply(lambda x: load_hddl(f"/media/shuo/T7/hddl_data/{x}"))
 df["image"] = df["image"].apply(lambda x: f"/media/shuo/T7/hddl_data/{x}")
 
