@@ -1,7 +1,7 @@
 from trl import SFTTrainer
 from transformers import TrainingArguments, PreTrainedTokenizerBase
 from peft import LoraConfig
-from ft_src.sft_dataset import collate_fn_ref_ids
+from gemma_ft_src.sft_dataset import collate_fn_ref_ids
 from trl import (
     ModelConfig,
     ScriptArguments,
@@ -51,7 +51,7 @@ class CustomSFTTrainer:
             max_grad_norm=0.3,                      # max gradient norm based on QLoRA paper
             warmup_ratio=0.03,                      # warmup ratio based on QLoRA paper
             lr_scheduler_type="constant",           # use constant learning rate scheduler
-            push_to_hub=True,                       # push model to hub
+            push_to_hub=False,                       # push model to hub
             report_to="tensorboard",                # report metrics to tensorboard
             gradient_checkpointing_kwargs = {"use_reentrant": False}, # use reentrant checkpointing
             dataset_text_field="", # need a dummy field for collator

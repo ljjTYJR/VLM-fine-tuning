@@ -20,3 +20,8 @@ The demo of fine-tuning a VLLM model with a custom dataset.
 ## Converting the model to ollama
 - https://github.com/ggml-org/llama.cpp/discussions/2948
 - https://github.com/ollama/ollama/blob/main/docs/import.md#Importing-a-fine-tuned-adapter-from-Safetensors-weights
+
+
+# Notes
+- The Qwen model: transformers: 4.49.0
+- The Gemma model: transformers>=4.51.3

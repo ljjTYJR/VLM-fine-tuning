@@ -1,22 +1,27 @@
 from datasets import load_dataset
 from qwen_vl_utils import process_vision_info
 import torch
-from ft_src.constants import (
+from gemma_ft_src.constants import (
     IGNORE_INDEX,
     SYSTEM_MESSAGE,
     IM_START_ID,
-
-    PROMPT_0,
-    PROMPT_1,
-    PROMPT_2,
-    PROMPT_3
+    PROMPTS
 )
 
 
 # Convert dataset to OAI messages
 def format_data(sample, prompt_index):
-    prompt = [PROMPT_0, PROMPT_1, PROMPT_2, PROMPT_3][prompt_index]
+    prompt = PROMPTS[prompt_index]
     return {"messages": [
+                {
+                    "role": "system",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "You are a helpful assistant."
+                        }
+                    ]
+                },
                 {
                     "role": "user",
                     "content": [
@@ -62,39 +67,87 @@ def collate_fn_all_inputids(samples, processor):
     return batch
 
 def collate_fn_ref_ids(samples, processor):
-    texts = [processor.apply_chat_template(example["messages"], tokenize=False) for example in samples]
-    image_inputs = [process_vision_info(example["messages"])[0] for example in samples] #0 is the image; 1 is the video
-    batch = processor(text=texts, images=image_inputs, return_tensors="pt", padding=True)
+    """ Vectorized batch processing for acceleration """
+    # Extract user and assistant messages for all samples
+    user_texts = []
+    response_texts = []
+    image_inputs = []
 
-    labels = batch["input_ids"].clone()
-    im_start_indices = [(_label == IM_START_ID).nonzero(as_tuple=True)[0] for _label in labels]
+    for sample in samples:
+        user_messages = [msg for msg in sample["messages"] if msg["role"] in ["system", "user"]]
+        assistant_messages = [msg for msg in sample["messages"] if msg["role"] == "assistant"]
 
-    # the model outputs start from (im_start_indices[2]+2), which means (<im_start>assistant\n)
-    start_indices = [start_idx[2] + 2 for start_idx in im_start_indices]
-    # for each batch, the (:start_indices) for each batch will be set as IGNORE_INDEX
-    for i, start_idx in enumerate(start_indices):
-        labels[i, :start_idx+1] = IGNORE_INDEX # all input will be set as IGNORE_INDEX during fine-tuning
-    # all padding tokens will be set as IGNORE_INDEX
-    labels[labels == processor.tokenizer.pad_token_id] = IGNORE_INDEX
+        user_text = processor.apply_chat_template(user_messages, tokenize=False, add_generation_prompt=False)
+        response_text = assistant_messages[0]["content"][0]["text"] if assistant_messages else ""
+        response_text = response_text + '<end_of_turn>' + '\n'
 
-    """
-    system_message = f"{DEFAULT_IM_START_TOKEN}system\n{SYSTEM_MESSAGE}{DEFAULT_IM_END_TOKEN}\n"
-    system_message_input_ids = processor.tokenizer(system_message, add_special_tokens=False, return_tensors='pt')['input_ids']
+        user_texts.append(user_text)
+        response_texts.append(response_text)
+        image_inputs.append(process_vision_info(sample["messages"])[0])
 
-    return_message = f"{DEFAULT_IM_START_TOKEN}assistant\n"
-    return_message_input_ids = processor.tokenizer(return_message, add_special_tokens=False, return_tensors='pt')['input_ids']
-    """
+    # Batch process user inputs with images
+    inputs = processor(text=user_texts, images=image_inputs, return_tensors="pt", padding=False)
+    input_ids_batch = inputs.input_ids
+    pixel_values_batch = inputs.pixel_values
 
-    batch["labels"] = labels
+    # Batch tokenize response texts
+    response_tokens = processor.tokenizer(response_texts, return_tensors="pt", padding=True)
+    response_ids_batch = response_tokens.input_ids
+
+    # Process each sample and collect tensors
+    batch_input_ids = []
+    batch_labels = []
+    batch_attention_mask = []
+    batch_token_type_ids = []
+    batch_pixel_values = []
+
+    for i in range(len(samples)):
+        input_ids = input_ids_batch[i:i+1]
+        response_ids = response_ids_batch[i:i+1]
+        pixel_values = pixel_values_batch[i:i+1]
+
+        # Concatenate with padding preserved
+        all_ids = torch.cat([input_ids[0], response_ids[0]])
+
+        # Create labels: mask input tokens and pad tokens with -100
+        labels = torch.cat([
+            torch.tensor([IGNORE_INDEX] * input_ids.shape[1]),  # Mask all input tokens
+            response_ids[0]  # Keep response tokens (including padding)
+        ])
+        # Mask pad tokens in labels with -100
+        labels[labels == processor.tokenizer.pad_token_id] = IGNORE_INDEX
+
+        # Create attention mask (1 for real tokens, 0 for padding)
+        attention_mask = (all_ids != processor.tokenizer.pad_token_id).long()
+
+        # Create token type IDs
+        token_type_ids = torch.zeros_like(all_ids)
+        token_type_ids[all_ids == processor.image_token_id] = 1
+
+        batch_input_ids.append(all_ids)
+        batch_labels.append(labels)
+        batch_attention_mask.append(attention_mask)
+        batch_token_type_ids.append(token_type_ids)
+        batch_pixel_values.append(pixel_values[0])
+
+    # Stack all tensors to create batch dimension
+    batch = {
+        'input_ids': torch.stack(batch_input_ids),
+        'labels': torch.stack(batch_labels),
+        'attention_mask': torch.stack(batch_attention_mask),
+        'token_type_ids': torch.stack(batch_token_type_ids),
+        'pixel_values': torch.stack(batch_pixel_values)
+    }
     return batch
 
 def generate_description(sample, model, processor, prompt_idx):
-    prompt = [PROMPT_0, PROMPT_1, PROMPT_2, PROMPT_3][prompt_idx]
+    # TODO: use new prompt
+    prompt = PROMPTS[prompt_idx]
     messages = [
         {"role": "system", "content": [{"type": "text", "text": SYSTEM_MESSAGE}]},
         {"role": "user", "content": [
+            {"type": "text", "text": prompt},
             {"type": "image","image": sample['image'], "resized_height": 360, "resized_width": 640,},
-            {"type": "text", "text": prompt}
         ]},
     ]
     # Preparation for inference
@@ -104,12 +157,12 @@ def generate_description(sample, model, processor, prompt_idx):
     text = processor.apply_chat_template(
         messages, tokenize=False, add_generation_prompt=True, return_tensors="pt"
     )
+    print("The templated text:", text)
     image_inputs, video_inputs = process_vision_info(messages)
     # save the image
     inputs = processor(
         text=[text],
         images=image_inputs,
-        videos=video_inputs,
         padding=True,
         return_tensors="pt",
     )
@@ -118,7 +171,7 @@ def generate_description(sample, model, processor, prompt_idx):
     if torch.isnan(inputs.input_ids).any() or torch.isinf(inputs.input_ids).any():
         raise ValueError("Input contains NaN or Inf values.")
     # Inference: Generation of the output
-    generated_ids = model.generate(**inputs, max_new_tokens=1024)
+    generated_ids = model.generate(**inputs, max_new_tokens=2048)
     generated_ids_trimmed = [out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)]
     output_text = processor.batch_decode(
         generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False

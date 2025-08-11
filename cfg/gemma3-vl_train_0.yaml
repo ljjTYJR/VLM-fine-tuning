@@ -1,0 +1,11 @@
+model:
+  pretrained_model_name_or_path: "google/gemma-3-12b-it"
+  processor: "google/gemma-3-12b-it"
+
+dataset:
+  dataset_id: "shuooru/image-hddl-dataset"
+  prompt_index: 4
+
+trainer:
+  output_dir: "output/gemma3-vl_0"
+  per_device_train_batch_size: 4
