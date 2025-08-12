@@ -7,7 +7,7 @@ torchaudio
 
 # Other dependencies
 peft==0.16.0
-transformers==4.49.0
+transformers==4.51.3
 trl==0.17.0
 qwen-vl-utils
 omegaconf
